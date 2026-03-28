@@ -2,10 +2,9 @@ import tkinter as tk
 from tkinter import messagebox
 from collections import deque
 import os
+import time
 
-# ======================
 # CLASS CUSTOMER
-# ======================
 class Customer:
     def __init__(self, nomor, nama):
         self.nomor = nomor
@@ -14,9 +13,7 @@ class Customer:
     def __str__(self):
         return f"Nomor {self.nomor} - {self.nama}"
 
-# ======================
 # CLASS QUEUE
-# ======================
 class Antrian:
     def __init__(self):
         self.queue = deque()
@@ -37,18 +34,21 @@ class Antrian:
     def is_empty(self):
         return len(self.queue) == 0
 
-# ======================
-# CLASS SUARA (FESTIVAL)
-# ======================
-class Suara:
-    def bicara(self, teks):
-        # Escape tanda kutip biar aman
-        teks = teks.replace('"', '')
-        os.system(f'echo "{teks}" | festival --tts')
 
-# ======================
+# CLASS SUARA (FESTIVAL)
+class Suara:
+    def bicara(self, nomor, nama):
+        # Panggilan bertahap seperti di bank
+        os.system(f'echo "Nomor antrian {nomor}" | festival --tts')
+        time.sleep(0.5)
+
+        os.system(f'echo "Atas nama {nama}" | festival --tts')
+        time.sleep(0.5)
+
+        os.system('echo "Silakan menuju loket" | festival --tts')
+
+
 # GUI
-# ======================
 class SimulasiAntrian:
     def __init__(self, root):
         self.root = root
@@ -75,9 +75,7 @@ class SimulasiAntrian:
         self.text_area = tk.Text(root, height=15)
         self.text_area.pack()
 
-    # ======================
     # FUNCTION
-    # ======================
     def ambil(self):
         nama = self.input_nama.get()
 
@@ -109,14 +107,11 @@ class SimulasiAntrian:
             self.text_area.insert(tk.END, pesan + "\n")
 
             # SUARA (Festival)
-            teks = f"Nomor antrian {c.nomor}. Atas nama {c.nama}. Silakan ke loket."
-            self.suara.bicara(teks)
+            self.suara.bicara(c.nomor, c.nama)
         else:
             self.text_area.insert(tk.END, "Antrian kosong!\n")
 
-# ======================
 # MAIN
-# ======================
 if __name__ == "__main__":
     root = tk.Tk()
     app = SimulasiAntrian(root)
