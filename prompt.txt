@@ -1,0 +1,79 @@
+#Java
+Buatkan program Java GUI menggunakan Swing dengan konsep OOP untuk simulasi antrian bank (FIFO) dengan ketentuan berikut:
+
+Menggunakan JFrame sebagai window utama.
+Gunakan struktur data Queue (LinkedList) untuk menyimpan antrian.
+Setiap data antrian terdiri dari nomor antrian dan nama pelanggan.
+Fitur yang harus ada:
+   - Input nama pelanggan (JTextField)
+   - Tombol "Ambil Antrian" untuk menambahkan data ke queue
+   - Tombol "Tampilkan" untuk menampilkan seluruh antrian
+   - Tombol "Panggil" untuk mengambil antrian pertama (FIFO)
+
+Tampilan:
+   - Gunakan BorderLayout
+   - Bagian atas berisi input dan tombol
+   - Bagian tengah berisi JTextArea untuk menampilkan daftar antrian
+   - Gunakan JScrollPane untuk area antrian
+
+Validasi:
+   - Nama tidak boleh kosong (gunakan JOptionPane)
+
+Saat tombol "Panggil" ditekan:
+   - Tampilkan popup berisi:
+     "Nomor X atas nama Y, silakan ke loket"
+   - Gunakan Text-to-Speech di Linux menggunakan espeak
+   - Jalankan perintah espeak melalui ProcessBuilder
+   - Program harus menunggu suara selesai sebelum lanjut (process.waitFor())
+
+Tambahkan method:
+   - updateTextArea() untuk refresh tampilan antrian
+   - speak(String text) untuk menjalankan text-to-speech
+
+Gunakan font Monospaced pada JTextArea agar rapi.
+
+Sertakan method main untuk menjalankan program.
+
+Buatkan kode lengkap yang siap dijalankan.
+
+
+
+#Python
+Buatkan program simulasi antrian bank menggunakan Python dengan GUI Tkinter dan konsep OOP (Object Oriented Programming).
+
+Spesifikasi program:
+Gunakan class berikut:
+   - Class Customer (atribut: nomor antrian, nama)
+   - Class Antrian (menggunakan struktur data Queue FIFO dengan collections.deque)
+   - Class Suara (menggunakan text-to-speech Festival di Linux)
+   - Class SimulasiAntrian sebagai GUI utama
+
+Fitur program:
+   - Input nama pelanggan
+   - Tombol "Ambil Antrian" untuk menambahkan ke queue
+   - Tombol "Tampilkan" untuk menampilkan seluruh antrian
+   - Tombol "Panggil" untuk memanggil antrian pertama (FIFO)
+
+Ketentuan:
+   - Nomor antrian bertambah otomatis mulai dari 1
+   - Gunakan tkinter untuk GUI
+   - Gunakan Text widget untuk menampilkan output
+   - Gunakan messagebox untuk validasi input kosong
+   - Gunakan os.system untuk menjalankan Festival TTS
+
+Fitur suara:
+   - Saat tombol "Panggil" ditekan, sistem mengucapkan:
+     - "Nomor antrian X"
+     - "Atas nama Y"
+     - "Silakan menuju loket"
+   - Beri jeda antar kalimat menggunakan time.sleep
+
+Tampilan GUI:
+   - Judul: "Simulasi Antrian Bank"
+   - Input field nama
+   - 3 tombol: Ambil Antrian, Tampilkan, Panggil
+   - Area teks untuk output
+
+Gunakan struktur kode yang rapi dan mudah dipahami
+
+Sertakan komentar di setiap bagian penting kode
