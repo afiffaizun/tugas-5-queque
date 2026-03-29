@@ -1,109 +1,34 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
+import java.util.Queue;
 
-import com.sun.speech.freetts.*;
-
-
-// =======================
-// CLASS CUSTOMER
-// =======================
-class Customer {
-    int nomor;
-    String nama;
-
-    public Customer(int nomor, String nama) {
-        this.nomor = nomor;
-        this.nama = nama;
-    }
-
-    @Override
-    public String toString() {
-        return "Nomor " + nomor + " - " + nama;
-    }
-}
-
-// =======================
-// CLASS QUEUE
-// =======================
-class Antrian {
-    private LinkedList<Customer> queue = new LinkedList<>();
-    private int nomor = 1;
-
-    public void tambah(String nama) {
-        queue.add(new Customer(nomor++, nama));
-    }
-
-    public Customer panggil() {
-        if (!queue.isEmpty()) {
-            return queue.poll();
-        }
-        return null;
-    }
-
-    public LinkedList<Customer> getAll() {
-        return queue;
-    }
-
-    public boolean isEmpty() {
-        return queue.isEmpty();
-    }
-}
-
-// =======================
-// GUI
-// =======================
 public class SimulasiAntrian extends JFrame {
 
-    private Antrian antrian = new Antrian();
+    Queue<String[]> queue = new LinkedList<>();
+    int nomor = 1;
 
-    private JTextArea area = new JTextArea();
-    private JTextField inputNama = new JTextField();
-
-    // =======================
-    // 🔊 METHOD SUARA
-    // =======================
-    public void suara(String text) {
-        Voice voice;
-        VoiceManager vm = VoiceManager.getInstance();
-        voice = vm.getVoice("kevin16");
-
-        if (voice != null) {
-            voice.allocate();
-            voice.speak(text);
-            voice.deallocate();
-        } else {
-            System.out.println("Voice tidak ditemukan!");
-        }
-    }
+    JTextField inputNama;
+    JTextArea areaAntrian;
 
     public SimulasiAntrian() {
         setTitle("Simulasi Antrian Bank");
-        setSize(500, 500);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setSize(450, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        setLayout(new BorderLayout(10,10));
+        // ===== PANEL ATAS =====
+        JPanel panelAtas = new JPanel(new GridLayout(3, 1, 5, 5));
 
-        // ================= HEADER =================
-        JLabel title = new JLabel("SISTEM ANTRIAN BANK", JLabel.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 18));
-        title.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        JLabel label = new JLabel("Masukkan Nama:", JLabel.CENTER);
+        panelAtas.add(label);
 
-        add(title, BorderLayout.NORTH);
+        inputNama = new JTextField();
+        panelAtas.add(inputNama);
 
-        // ================= PANEL INPUT =================
-        JPanel panelInput = new JPanel(new GridLayout(2,1,5,5));
-        panelInput.setBorder(BorderFactory.createTitledBorder("Input"));
+        JPanel panelTombol = new JPanel(new FlowLayout());
 
-        panelInput.add(new JLabel("Masukkan Nama:"));
-        panelInput.add(inputNama);
-
-        // ================= PANEL BUTTON =================
-        JPanel panelTombol = new JPanel(new GridLayout(1,3,10,10));
-        panelTombol.setBorder(BorderFactory.createTitledBorder("Menu"));
-
-        JButton btnAmbil = new JButton("Ambil");
+        JButton btnAmbil = new JButton("Ambil Antrian");
         JButton btnTampil = new JButton("Tampilkan");
         JButton btnPanggil = new JButton("Panggil");
 
@@ -111,73 +36,87 @@ public class SimulasiAntrian extends JFrame {
         panelTombol.add(btnTampil);
         panelTombol.add(btnPanggil);
 
-        // ================= PANEL ATAS =================
-        JPanel panelAtas = new JPanel(new BorderLayout(5,5));
-        panelAtas.add(panelInput, BorderLayout.NORTH);
-        panelAtas.add(panelTombol, BorderLayout.SOUTH);
+        panelAtas.add(panelTombol);
+        add(panelAtas, BorderLayout.NORTH);
 
-        add(panelAtas, BorderLayout.CENTER);
+        // ===== AREA ANTRIAN =====
+        areaAntrian = new JTextArea();
+        areaAntrian.setEditable(false);
+        areaAntrian.setFont(new Font("Monospaced", Font.PLAIN, 14));
 
-        // ================= AREA OUTPUT =================
-        area.setEditable(false);
-        area.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        JScrollPane scroll = new JScrollPane(areaAntrian);
+        add(scroll, BorderLayout.CENTER);
 
-        JScrollPane scroll = new JScrollPane(area);
-        scroll.setBorder(BorderFactory.createTitledBorder("Output Antrian"));
+        // ===== EVENT =====
 
-        add(scroll, BorderLayout.SOUTH);
-
-        // ================= EVENT =================
-
-        // AMBIL
+        // Ambil Antrian
         btnAmbil.addActionListener(e -> {
-            String nama = inputNama.getText();
+            String nama = inputNama.getText().trim();
 
-            if (!nama.isEmpty()) {
-                antrian.tambah(nama);
-                area.setText("Berhasil ambil antrian untuk: " + nama);
-                inputNama.setText("");
-            } else {
-                area.setText("Nama tidak boleh kosong!");
-            }
-        });
-
-        // TAMPILKAN
-        btnTampil.addActionListener(e -> {
-            if (antrian.isEmpty()) {
-                area.setText("Antrian kosong!");
+            if (nama.equals("")) {
+                JOptionPane.showMessageDialog(null, "Nama tidak boleh kosong!");
                 return;
             }
 
-            String hasil = "Daftar Antrian:\n\n";
-            for (Customer c : antrian.getAll()) {
-                hasil += c.toString() + "\n";
-            }
+            String[] data = {String.valueOf(nomor), nama};
+            queue.add(data);
+            nomor++;
 
-            area.setText(hasil);
+            inputNama.setText("");
+            updateTextArea();
         });
 
-        // PANGGIL + 🔊 SUARA
+        // Tampilkan
+        btnTampil.addActionListener(e -> updateTextArea());
+
+        // Panggil
         btnPanggil.addActionListener(e -> {
-            Customer c = antrian.panggil();
-
-            if (c != null) {
-
-                String teks = "Number " + c.nomor +
-                              " please come forward. " +
-                              "Customer " + c.nama;
-
-                // 🔊 jalankan suara di thread
-                new Thread(() -> suara(teks)).start();
-
-                area.setText("Memanggil:\n" + c.toString());
-            } else {
-                area.setText("Antrian kosong!");
+            if (queue.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Antrian kosong");
+                return;
             }
+
+            String[] data = queue.poll();
+            String teks = "Nomor " + data[0] + " atas nama " + data[1] + ", silakan ke loket";
+
+            JOptionPane.showMessageDialog(null, teks);
+
+            speak(teks); 
+
+            updateTextArea();
         });
     }
 
+    // ===== UPDATE TEXT AREA =====
+    public void updateTextArea() {
+        areaAntrian.setText("Daftar Antrian:\n\n");
+
+        for (String[] data : queue) {
+            areaAntrian.append("Nomor " + data[0] + " - " + data[1] + "\n");
+        }
+    }
+
+    // ===== TEXT TO SPEECH (LINUX - STABIL) =====
+    public void speak(String text) {
+        try {
+            String safeText = text.replace("\"", "");
+
+            ProcessBuilder pb = new ProcessBuilder(
+                    "espeak", "-s", "120", "-p", "50", "-v", "id", safeText
+            );
+
+            Process process = pb.start();
+            process.waitFor(); // ⬅️ tunggu sampai suara selesai
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ===== MAIN =====
     public static void main(String[] args) {
-        new SimulasiAntrian().setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            new SimulasiAntrian().setVisible(true);
+        });
     }
 }
